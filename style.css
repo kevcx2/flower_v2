@@ -1,0 +1,25 @@
+html {
+  height: 100%;
+  background: rgba(30,61,66,1);
+  background: -moz-linear-gradient(45deg, rgba(30,61,66,1) 0%, rgba(45,110,130,1) 100%);
+  background: -webkit-gradient(left bottom, right top, color-stop(0%, rgba(30,61,66,1)), color-stop(100%, rgba(45,110,130,1)));
+  background: -webkit-linear-gradient(45deg, rgba(30,61,66,1) 0%, rgba(45,110,130,1) 100%);
+  background: -o-linear-gradient(45deg, rgba(30,61,66,1) 0%, rgba(45,110,130,1) 100%);
+  background: -ms-linear-gradient(45deg, rgba(30,61,66,1) 0%, rgba(45,110,130,1) 100%);
+  background: linear-gradient(45deg, rgba(30,61,66,1) 0%, rgba(45,110,130,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e3d42', endColorstr='#2d6e82', GradientType=1 );
+}
+
+body {
+  font-family: La Belle Aurore;
+  color: white;
+  font-weight: 100;
+}
+
+canvas {
+  border-radius: 10px;
+  border: 2px solid white;
+  -webkit-box-shadow: 1px 0px 20px 3px rgba(0,0,0,0.22);
+  -moz-box-shadow: 1px 0px 20px 3px rgba(0,0,0,0.22);
+  box-shadow: 1px 0px 20px 3px rgba(0,0,0,0.22);
+}
