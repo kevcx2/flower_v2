@@ -4,11 +4,24 @@ window.globals = window.globals || {};
 var shapeTool = new Tool();
 window.globals.shapeTool = shapeTool;
 
-var circleSize = 50;
-
 shapeTool.onMouseDown = function (event) {
-  var circle = new Path.Circle(event.point, circleSize);
+  distVector = globals.centerPoint - event.point;
+
+  if (globals.brushType === 'auto') {
+    var strokeWidth = distVector.length / 30;
+    var brushSize = distVector.length / 5;
+
+    if (strokeWidth < 1) {
+      strokeWidth = 1;
+    }
+    if (brushSize < 30) {
+      brushSize = 30;
+    }
+  }
+
+  var circle = new Path.Circle(event.point, brushSize);
   circle.rotated = false;
   circle.strokeColor = 'black';
+  circle.strokeWidth = strokeWidth;
   project.activeLayer.addChild(circle);
 };

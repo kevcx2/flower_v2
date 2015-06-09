@@ -6,9 +6,16 @@ var rotation = 360/numSegments;
 var centerX = $('canvas').width()/2;
 var centerY = $('canvas').height()/2;
 var centerPoint = new Point(centerX, centerY);
-globals.centerPoint = centerPoint;
 var segLength = Math.min($('canvas').width(), $('canvas').height()) * 0.48;
 var guide;
+
+//setup global properties
+globals.centerPoint = centerPoint;
+globals.brushSize = 5;
+globals.brushWeight = 5;
+globals.brushType = 'auto';
+globals.animationQueue = [];
+
 
 //create inital layers
 var guideLayer = new Layer();
@@ -78,6 +85,14 @@ function rotationCopy(shape) {
   return newShape;
 }
 
+function onFrame(event) {
+  globals.layers.forEach(function(layer) {
+    if (layer.animation) {
+      layer.animation(layer, layer.animSpeed);
+    }
+  });
+}
+
 function clearDrawing() {
   removeQueue = [];
   project.activeLayer.children.forEach(function(child) {
@@ -121,7 +136,8 @@ function selectTool(event) {
 
 function addWorkingLayer() {
   newLayer = new Layer();
-  // newLayer.rotateTracker = 0;
+  newLayer.animation = undefined;
+
   globals.layers = globals.layers || [];
   globals.layers.push(newLayer);
 
@@ -129,11 +145,34 @@ function addWorkingLayer() {
   $layerDeleteButton.html('-');
   $layerDeleteButton.on('click', deleteLayer);
 
-  $layerUiItem = $('<li>').html('Layer ' + globals.layers.length);
+  $layerAnimateButton = $('<button>').addClass('delete-layer');
+  $layerAnimateButton.html('Animate');
+  $layerAnimateButton.on('click', animateLayer);
+
+  $layerUiItem = $('<li>').html('Layer ' + newLayer.id);
   $layerUiItem.append($layerDeleteButton);
+  $layerUiItem.append($layerAnimateButton);
   $layerUiItem.attr('id', newLayer.id);
 
   $('.layers ul').append($layerUiItem);
+}
+
+function animateLayer(event) {
+  $layerUiItem = $(event.target).parent();
+  targetLayerId = parseInt($layerUiItem.attr('id'));
+  targetLayer = findLayerById(targetLayerId);
+
+  targetLayer.animSpeed = Math.random() * 0.5;
+
+  if (targetLayer.animation === undefined) {
+    targetLayer.animation = function (layer, speed) {
+      layer.rotate(speed, globals.centerPoint);
+    };
+  }
+
+  else {
+    targetLayer.animation = undefined;
+  }
 }
 
 function deleteLayer(event) {
@@ -142,19 +181,27 @@ function deleteLayer(event) {
 
     $layerUiItem = $(event.target).parent();
     targetLayerId = parseInt($layerUiItem.attr('id'));
+
     //remove layer from global list
     for (var i = 0; i < globals.layers.length; i++) {
       if (globals.layers[i].id === targetLayerId) {
         globals.layers.splice(i, 1);
       }
     }
-    //remove layer from paper.js project
-    project.layers.forEach(function(layer) {
-      if (layer.id === targetLayerId) {
-        layer.remove();
-        $layerUiItem.remove();
-      }
-    });
+
+    findLayerById(targetLayerId).remove();
+    $layerUiItem.remove();
+
     paper.view.draw();
   }
+}
+
+function findLayerById(targetId) {
+  targetLayer = undefined;
+  project.layers.forEach(function(layer) {
+    if (layer.id === targetId) {
+      targetLayer = layer;
+    }
+  });
+  return targetLayer;
 }

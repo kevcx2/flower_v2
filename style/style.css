@@ -31,6 +31,7 @@ canvas {
 .layers {
   display: inline-block;
   text-align:center;
+  border: 1px solid white;
 }
 
 .layers li {
