@@ -8,6 +8,7 @@ var circleSize = 50;
 
 shapeTool.onMouseDown = function (event) {
   var circle = new Path.Circle(event.point, circleSize);
+  circle.rotated = false;
   circle.strokeColor = 'black';
-  globals.drawGroup.addChild(circle);
+  project.activeLayer.addChild(circle);
 };

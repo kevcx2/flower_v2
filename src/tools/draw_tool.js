@@ -12,7 +12,8 @@ var minLineSize = 0.75;
 
 drawTool.onMouseDown = function (event) {
   drawPath = new Path();
-  globals.drawGroup.addChild(drawPath);
+  drawPath.rotated = false;
+  project.activeLayer.addChild(drawPath);
   drawPath.fillColor = colors[Math.floor(Math.random() * colors.length)];
 };
 

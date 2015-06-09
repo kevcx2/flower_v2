@@ -11,15 +11,43 @@ html {
 }
 
 body {
-  font-family: La Belle Aurore;
   color: white;
   font-weight: 100;
 }
 
+h1 {
+  font-family: La Belle Aurore;
+}
+
 canvas {
+  float: left;
   border-radius: 10px;
   border: 2px solid white;
   -webkit-box-shadow: 1px 0px 20px 3px rgba(0,0,0,0.22);
   -moz-box-shadow: 1px 0px 20px 3px rgba(0,0,0,0.22);
   box-shadow: 1px 0px 20px 3px rgba(0,0,0,0.22);
+}
+
+.layers {
+  display: inline-block;
+  text-align:center;
+}
+
+.layers li {
+  border: 1px solid white;
+  list-style-type: none;
+  min-width: 100px;
+  text-align: center;
+}
+
+.layers li.title {
+  border: none;
+  border-bottom: 1px solid white;
+  list-style-type: none;
+  min-width: 100px;
+  text-align: center;
+}
+
+.drawing-container {
+  display: inline-block;
 }

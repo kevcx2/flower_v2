@@ -1,1 +1,0 @@
-window.globals = window.globals || {};
