@@ -71,11 +71,10 @@ function drawRotation() {
 
 function _rotate(shape) {
   var shapeCopy = rotationCopy(shape);
-  for (i = 0; i < numSegments; i++) {
+  for (i = 0; i < numSegments - 1; i++) {
     shapeCopy.rotate(rotation, centerPoint);
     shapeCopy = rotationCopy(shapeCopy);
   }
-  shapeCopy.remove();
   shape.rotated = true;
 }
 
@@ -88,7 +87,7 @@ function rotationCopy(shape) {
 function onFrame(event) {
   globals.layers.forEach(function(layer) {
     if (layer.animation) {
-      layer.animation(layer, layer.animSpeed);
+      layer.animation(layer, layer.animSpeed, layer.animOptions);
     }
   });
 }
@@ -125,7 +124,7 @@ function updateSegmentDisplay() {
 }
 
 function selectTool(event) {
-  console.log($(event.target));
+  // console.log($(event.target));
   if ($(event.target).hasClass('circle-tool')) {
     globals.shapeTool.activate();
   }
@@ -145,19 +144,24 @@ function addWorkingLayer() {
   $layerDeleteButton.html('-');
   $layerDeleteButton.on('click', deleteLayer);
 
-  $layerAnimateButton = $('<button>').addClass('delete-layer');
-  $layerAnimateButton.html('Animate');
-  $layerAnimateButton.on('click', animateLayer);
+  $layerRotateButton = $('<button>').addClass('rotate-anim');
+  $layerRotateButton.html('Rotate');
+  $layerRotateButton.on('click', rotateLayer);
+
+  $layerBounceButton = $('<button>').addClass('bounce-anim');
+  $layerBounceButton.html('Bounce');
+  $layerBounceButton.on('click', bounceLayer);
 
   $layerUiItem = $('<li>').html('Layer ' + newLayer.id);
   $layerUiItem.append($layerDeleteButton);
-  $layerUiItem.append($layerAnimateButton);
+  $layerUiItem.append($layerRotateButton);
+  $layerUiItem.append($layerBounceButton);
   $layerUiItem.attr('id', newLayer.id);
 
   $('.layers ul').append($layerUiItem);
 }
 
-function animateLayer(event) {
+function rotateLayer(event) {
   $layerUiItem = $(event.target).parent();
   targetLayerId = parseInt($layerUiItem.attr('id'));
   targetLayer = findLayerById(targetLayerId);
@@ -173,6 +177,48 @@ function animateLayer(event) {
   else {
     targetLayer.animation = undefined;
   }
+}
+
+function bounceLayer(event) {
+  $layerUiItem = $(event.target).parent();
+  targetLayerId = parseInt($layerUiItem.attr('id'));
+  targetLayer = findLayerById(targetLayerId);
+  targetLayer.scaleFactor = 1;
+
+  targetLayer.animSpeed = Math.random() * 0.5;
+  targetLayer.animOptions = {inBounce: true};
+
+  if (targetLayer.animation === undefined) {
+    targetLayer.animation = function (layer, speed, options) {
+      var scaleSpeed = .05;
+
+      if (options && options.inBounce) {
+        if (layer.scaleFactor < .1) {
+          layer.animOptions.inBounce = false;
+        }
+        else {
+          layer.scale(1 - scaleSpeed, globals.centerPoint);
+          layer.scaleFactor = layer.scaleFactor * (1 - scaleSpeed);
+          console.log(layer.scaleFactor);
+        }
+      }
+      else {
+        if (layer.scaleFactor < 1) {
+          layer.scale(1 + scaleSpeed, globals.centerPoint);
+          layer.scaleFactor = layer.scaleFactor * (1 + scaleSpeed);
+          console.log(layer.scaleFactor);
+        }
+        else {
+          layer.animOptions.inBounce = true;
+        }
+      }
+    };
+  }
+
+  else {
+    targetLayer.animation = undefined;
+  }
+  console.log('bounced layer' + targetLayerId);
 }
 
 function deleteLayer(event) {

@@ -2053,6 +2053,21 @@ var Matrix = Base.extend({
 		return this;
 	},
 
+	scalePixel: function() {
+		var scale = Point.read(arguments),
+			center = Point.read(arguments, 0, { readNull: true });
+		if (center)
+			this.translate(center);
+		this._a *= scale.x;
+		this._c *= scale.x;
+		this._b *= scale.y;
+		this._d *= scale.y;
+		if (center)
+			this.translate(center.negate());
+		this._changed();
+		return this;
+	},
+
 	rotate: function(angle ) {
 		angle *= Math.PI / 180;
 		var center = Point.read(arguments, 1),
