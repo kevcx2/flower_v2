@@ -15,6 +15,7 @@ globals.brushSize = 5;
 globals.brushWeight = 5;
 globals.brushType = 'auto';
 globals.animationQueue = [];
+globals.$activeLayer = undefined;
 
 
 //create inital layers
@@ -146,11 +147,11 @@ function addWorkingLayer() {
 
   $layerRotateButton = $('<button>').addClass('rotate-anim');
   $layerRotateButton.html('Rotate');
-  $layerRotateButton.on('click', rotateLayer);
+  $layerRotateButton.on('click', globals.animation.rotateLayer);
 
   $layerBounceButton = $('<button>').addClass('bounce-anim');
   $layerBounceButton.html('Bounce');
-  $layerBounceButton.on('click', bounceLayer);
+  $layerBounceButton.on('click', globals.animation.bounceLayer);
 
   $layerUiItem = $('<li>').html('Layer ' + newLayer.id);
   $layerUiItem.append($layerDeleteButton);
@@ -159,66 +160,18 @@ function addWorkingLayer() {
   $layerUiItem.attr('id', newLayer.id);
 
   $('.layers ul').append($layerUiItem);
+
+  $layerUiItem.on('click', setActiveLayer);
+  // $layerUiItem.addClass('active-layer');
+  // globals.$activeLayer = $layerUiItem;
 }
 
-function rotateLayer(event) {
-  $layerUiItem = $(event.target).parent();
-  targetLayerId = parseInt($layerUiItem.attr('id'));
-  targetLayer = findLayerById(targetLayerId);
-
-  targetLayer.animSpeed = Math.random() * 0.5;
-
-  if (targetLayer.animation === undefined) {
-    targetLayer.animation = function (layer, speed) {
-      layer.rotate(speed, globals.centerPoint);
-    };
-  }
-
-  else {
-    targetLayer.animation = undefined;
-  }
-}
-
-function bounceLayer(event) {
-  $layerUiItem = $(event.target).parent();
-  targetLayerId = parseInt($layerUiItem.attr('id'));
-  targetLayer = findLayerById(targetLayerId);
-  targetLayer.scaleFactor = 1;
-
-  targetLayer.animSpeed = Math.random() * 0.5;
-  targetLayer.animOptions = {inBounce: true};
-
-  if (targetLayer.animation === undefined) {
-    targetLayer.animation = function (layer, speed, options) {
-      var scaleSpeed = .05;
-
-      if (options && options.inBounce) {
-        if (layer.scaleFactor < .1) {
-          layer.animOptions.inBounce = false;
-        }
-        else {
-          layer.scale(1 - scaleSpeed, globals.centerPoint);
-          layer.scaleFactor = layer.scaleFactor * (1 - scaleSpeed);
-          console.log(layer.scaleFactor);
-        }
-      }
-      else {
-        if (layer.scaleFactor < 1) {
-          layer.scale(1 + scaleSpeed, globals.centerPoint);
-          layer.scaleFactor = layer.scaleFactor * (1 + scaleSpeed);
-          console.log(layer.scaleFactor);
-        }
-        else {
-          layer.animOptions.inBounce = true;
-        }
-      }
-    };
-  }
-
-  else {
-    targetLayer.animation = undefined;
-  }
-  console.log('bounced layer' + targetLayerId);
+function setActiveLayer(event) {
+  // $layerUiItem = $(event.target)
+  // targetLayerId = parseInt($layerUiItem.attr('id'));
+  // targetLayer = globals.findLayerById(targetLayerId);
+  // targetLayer.activate();
+  console.log('setActiveLayer clicked!');
 }
 
 function deleteLayer(event) {
@@ -235,14 +188,14 @@ function deleteLayer(event) {
       }
     }
 
-    findLayerById(targetLayerId).remove();
+    globals.findLayerById(targetLayerId).remove();
     $layerUiItem.remove();
 
     paper.view.draw();
   }
 }
 
-function findLayerById(targetId) {
+globals.findLayerById = function (targetId) {
   targetLayer = undefined;
   project.layers.forEach(function(layer) {
     if (layer.id === targetId) {

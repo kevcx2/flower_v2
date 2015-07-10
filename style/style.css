@@ -52,3 +52,7 @@ canvas {
 .drawing-container {
   display: inline-block;
 }
+
+.active-layer {
+  color: grey;
+}
