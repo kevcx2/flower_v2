@@ -135,6 +135,10 @@ function selectTool(event) {
 }
 
 function addWorkingLayer() {
+  if (globals.$activeLayer) {
+    globals.$activeLayer.removeClass('active-layer');
+  }
+
   newLayer = new Layer();
   newLayer.animation = undefined;
 
@@ -162,15 +166,20 @@ function addWorkingLayer() {
   $('.layers ul').append($layerUiItem);
 
   $layerUiItem.on('click', setActiveLayer);
-  // $layerUiItem.addClass('active-layer');
-  // globals.$activeLayer = $layerUiItem;
+  $layerUiItem.addClass('active-layer');
+  globals.$activeLayer = $layerUiItem;
 }
 
 function setActiveLayer(event) {
-  // $layerUiItem = $(event.target)
-  // targetLayerId = parseInt($layerUiItem.attr('id'));
-  // targetLayer = globals.findLayerById(targetLayerId);
-  // targetLayer.activate();
+  $layerUiItem = $(event.delegateTarget);
+
+  globals.$activeLayer.removeClass('active-layer');
+  $layerUiItem.addClass('active-layer');
+  globals.$activeLayer = $layerUiItem;
+
+  targetLayerId = parseInt($layerUiItem.attr('id'));
+  targetLayer = globals.findLayerById(targetLayerId);
+  targetLayer.activate();
   console.log('setActiveLayer clicked!');
 }
 

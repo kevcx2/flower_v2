@@ -2,6 +2,8 @@ window.globals = window.globals || {};
 globals.animation = globals.animation || {};
 
 globals.animation.bounceLayer = function (event) {
+  event.stopPropagation();
+
   $layerUiItem = $(event.target).parent();
   targetLayerId = parseInt($layerUiItem.attr('id'));
   targetLayer = globals.findLayerById(targetLayerId);
@@ -44,6 +46,8 @@ globals.animation.bounceLayer = function (event) {
 }
 
 globals.animation.rotateLayer = function (event) {
+  event.stopPropagation();
+
   $layerUiItem = $(event.target).parent();
   targetLayerId = parseInt($layerUiItem.attr('id'));
   targetLayer = globals.findLayerById(targetLayerId);
