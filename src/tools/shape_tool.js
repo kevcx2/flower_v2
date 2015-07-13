@@ -19,9 +19,26 @@ shapeTool.onMouseDown = function (event) {
     }
   }
 
-  var circle = new Path.Circle(event.point, brushSize);
-  circle.rotated = false;
-  circle.strokeColor = 'black';
-  circle.strokeWidth = strokeWidth;
-  project.activeLayer.addChild(circle);
+  var shape = new Path.Circle(event.point, brushSize);
+  shape.rotated = false;
+  shape.strokeColor = 'black';
+  shape.strokeWidth = strokeWidth;
+  project.activeLayer.addChild(shape);
+};
+
+shapeTool.showSettingsBox = function () {
+  $settingsBox = $('<div>')
+  $settingsBox.addClass('shape-settings');
+  $settingsBox.html('Shape Settings');
+
+  $circleButton = $('<button>')
+  $circleButton.html('⃝');
+  $settingsBox.append($circleButton);
+
+  $circleButton = $('<button>')
+  $circleButton.html('⃝');
+  $settingsBox.append($circleButton);
+
+  $('.settings').html('');
+  $('.settings').append($settingsBox);
 };

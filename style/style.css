@@ -56,3 +56,40 @@ canvas {
 .active-layer {
   color: grey;
 }
+
+.draw-settings {
+  position: relative;
+  display: inline-block;
+}
+
+.drawing-size-selector.auto-size {
+  padding: 20px;
+  position: absolute;
+  top: 25px;
+  border: 1px solid white;
+  background-color: inherit;
+}
+
+.drawing-size-selector.auto-size.active-size{
+  background-color: grey;
+}
+
+.drawing-size-selector.manual-size {
+  padding: 20px;
+  position: absolute;
+  top: 25px;
+  left: 100px;
+  border: 1px solid white;
+  background-color: inherit;
+}
+
+.drawing-size-selector.manual-size.active-size {
+  background-color: grey;
+}
+
+.brush-size-demo {
+    background: #f00;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}

@@ -23,6 +23,7 @@ var guideLayer = new Layer();
 addWorkingLayer();
 updateSegmentDisplay();
 drawGuide();
+globals.drawTool.showSettingsBox();
 
 //set button events
 $('button.rotate').on('click', drawRotation);
@@ -128,9 +129,11 @@ function selectTool(event) {
   // console.log($(event.target));
   if ($(event.target).hasClass('circle-tool')) {
     globals.shapeTool.activate();
+    globals.shapeTool.showSettingsBox();
   }
   else if ($(event.target).hasClass('draw-tool')) {
     globals.drawTool.activate();
+    globals.drawTool.showSettingsBox();
   }
 }
 
