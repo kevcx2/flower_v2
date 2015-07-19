@@ -3,40 +3,86 @@
 <head>
   <link href='http://fonts.googleapis.com/css?family=La+Belle+Aurore' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" href="style/style.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script type="text/javascript" src="src/paper-full.js"></script>
-  <script type="text/paperscript" src="src/tools/draw_tool.js" canvas="myCanvas"></script>
-  <script type="text/paperscript" src="src/tools/shape_tool.js" canvas="myCanvas"></script>
-  <script type="text/paperscript" src="src/anim/animations.js" canvas="myCanvas"></script>
-  <script type="text/paperscript" src="src/flower.js" canvas="myCanvas"></script>
+  <script type="text/paperscript" canvas="myCanvas">
+    window.globals = window.globals || {};
+
+    //setup global properties
+    globals.centerPoint = this.project.view.center;
+    globals.brushSize = 5;
+    globals.brushWeight = 5;
+    globals.brushType = 'auto';
+    globals.animationQueue = [];
+    globals.$activeLayer = undefined;
+
+    //define tool
+    var drawTool = new Tool();
+    window.globals.drawTool = drawTool;
+
+    //tool settings
+    var sizingType = 'auto';
+    var brushSize = 5;
+    var colors = ["#A2BF68","#569E5F","#CC746F","#A45983"];
+    var drawPath;
+    var drawThicknessScale = 0.025;
+    var minLineSize = 0.75;
+
+    drawTool.onMouseDown = function (event) {
+      drawPath = new Path();
+      drawPath.rotated = false;
+      project.activeLayer.addChild(drawPath);
+      drawPath.fillColor = colors[Math.floor(Math.random() * colors.length)];
+    };
+
+    drawTool.onMouseDrag = function (event) {
+      var step = event.delta;
+
+      if (sizingType === 'auto') {
+        distVector = globals.centerPoint - event.point;
+        distFromCenter = distVector.length - 50;
+        if (distFromCenter < minLineSize / drawThicknessScale) {
+          distFromCenter = minLineSize / drawThicknessScale;
+        }
+
+        step.angle += 90;
+        step.length = distFromCenter * drawThicknessScale;
+      }
+
+      if (sizingType === 'manual') {
+        step.angle += 90;
+        step.length = brushSize;
+      }
+
+      var top = event.middlePoint + step;
+      var bottom = event.middlePoint - step;
+
+      drawPath.add(top);
+      drawPath.insert(0, bottom);
+      drawPath.smooth();
+    };
+
+    drawTool.onMouseUp = function (event) {
+      drawPath.add(event.point);
+      drawPath.closed = true;
+      drawPath.smooth();
+    };
+
+    setTimeout(function () {
+      breakit();
+    }, 3000);
+
+    function onFrame(event) {
+      globals.layers.forEach(function(layer) {
+        if (layer.animation) {
+          layer.animation(layer, layer.animSpeed, layer.animOptions);
+        }
+      });
+    }
+  </script>
 </head>
 <body>
-  <div class="background">
-    <div>
-      <!-- <h4 class='petal-size'><h4>
-      <button class='petal-increase' >Petal Size +</button>
-      <button class='petal-decrease' >Petal Size -</button> -->
-      <h1>Flower</h1>
-      <h4 class='segment-counter'><h4>
-      <button class='add-segment'>Add Segment</button>
-      <button class='remove-segment' >Remove Segment</button>
-      <button class='tool draw-tool'>Draw Tool</button>
-      <button class='tool circle-tool'>Circle Tool</button>
-      <button class='rotate'>Bloom!</button>
-      <button class='clear'>Prune</button>
-    </div>
-    <div class='drawing-container'>
-      <canvas id="myCanvas" width=600 height=600></canvas>
-      <div class="layers">
-        <ul>
-          <li class="title"><h4>Layers</h4></li>
-        </ul>
-        <button class='add-layer'>+</button>
-      </div>
-      <div class="settings">
-      </div>
-    </div>
-    <h1> Draw and Bloom... </h1>
+  <div class='drawing-container'>
+    <canvas id="myCanvas" width=600 height=600></canvas>
   </div>
 </body>
 </html>
