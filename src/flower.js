@@ -215,4 +215,4 @@ globals.findLayerById = function (targetId) {
     }
   });
   return targetLayer;
-}
+};

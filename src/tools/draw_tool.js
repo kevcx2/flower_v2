@@ -73,16 +73,16 @@ drawTool.showSettingsBox = function () {
 
   $manualBrushDemo = $('<div>');
   $manualBrushDemo.addClass('brush-size-demo');
-  $manualBrushDemo.css('width', brushSize + 7);
-  $manualBrushDemo.css('height', brushSize + 7);
+  $manualBrushDemo.css('width', brushSize + 4);
+  $manualBrushDemo.css('height', brushSize + 4  );
   $manualSizeArea.append($manualBrushDemo);
 
   $manualSizeUp = $('<button>');
   $manualSizeUp.html('+');
   $manualSizeUp.on('click', function () {
     brushSize += 2;
-    $manualBrushDemo.css('width', brushSize + 7);
-    $manualBrushDemo.css('height', brushSize + 7);
+    $manualBrushDemo.css('width', brushSize + 4);
+    $manualBrushDemo.css('height', brushSize + 4);
   }.bind(this));
   $manualSizeArea.append($manualSizeUp);
 
@@ -91,8 +91,8 @@ drawTool.showSettingsBox = function () {
   $manualSizeDown.on('click', function () {
     if (brushSize > 1) {
       brushSize -= 2;
-      $manualBrushDemo.css('width', brushSize + 7);
-      $manualBrushDemo.css('height', brushSize + 7);
+      $manualBrushDemo.css('width', brushSize + 4);
+      $manualBrushDemo.css('height', brushSize + 4);
     }
   }.bind(this));
   $manualSizeArea.append($manualSizeDown);
