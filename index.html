@@ -5,79 +5,142 @@
   <link rel="stylesheet" type="text/css" href="style/style.css">
   <script type="text/javascript" src="src/paper-full.js"></script>
   <script type="text/paperscript" canvas="myCanvas">
-    window.globals = window.globals || {};
 
-    //setup global properties
-    globals.centerPoint = this.project.view.center;
-    globals.brushSize = 5;
-    globals.brushWeight = 5;
-    globals.brushType = 'auto';
-    globals.animationQueue = [];
-    globals.$activeLayer = undefined;
+    //colors
+    var colorList = ['#ffcbcb', '#ffcbd6', '#ffcbe0', '#ffcbed', '#ffcbf8',
+    '#fccbff', '#f2cbff', '#e7cbff', '#dacbff', '#d0cbff', '#cbd4ff', '#cbe4ff',
+    '#cbeeff', '#cbf6ff', '#cbfffb', '#cbfff1', '#cbffe6', '#cbffd7', '#d0ffcb',
+    '#e7ffcb', '#f7ffcb', '#fff8cb', '#ffe8cb', '#ffe0cb', '#ffd1cb']
+    var currColor = 0;
 
-    //define tool
-    var drawTool = new Tool();
-    window.globals.drawTool = drawTool;
+    //useful project properties
+    var centerPoint = project.view.center;
+    var mousePos = centerPoint;
+    var step = 0;
 
-    //tool settings
-    var sizingType = 'auto';
-    var brushSize = 5;
-    var colors = ["#A2BF68","#569E5F","#CC746F","#A45983"];
-    var drawPath;
-    var drawThicknessScale = 0.025;
-    var minLineSize = 0.75;
+    //define drawing tool for mouse movement
+    var shipTool = new Tool();
 
-    drawTool.onMouseDown = function (event) {
-      drawPath = new Path();
-      drawPath.rotated = false;
-      project.activeLayer.addChild(drawPath);
-      drawPath.fillColor = colors[Math.floor(Math.random() * colors.length)];
+    //set up trail draw paths - horiz. & vert.
+    var color = '#FFFF';
+    var trailThickness = 10;
+    var rocketSpeed = .95;
+
+    var horizTrail = new Path();
+    horizTrail.fillColor = colorList[currColor];
+
+    var vertTrail = new Path();
+    vertTrail.fillColor = colorList[currColor];
+
+    var horizTrailOld;
+    var vertTrailOld;
+
+    //setup body of rocket
+    // '#f3ffff'
+    var rocketBody = new Path.Circle(centerPoint, 20);
+    rocketBody.fillColor = '#5f6d6d';
+    project.activeLayer.addChild(rocketBody);
+
+    var bodyWidth = rocketBody.bounds.width;
+
+    //middle of rocket
+    var rocketMiddle = new Path.Circle(centerPoint, 13);
+    rocketMiddle.fillColor = '#afb6b6';
+    project.activeLayer.addChild(rocketMiddle);
+
+    var middleMargin = 20;
+
+    //setup tip of rocket
+    var rocketNose = new Path.Circle(centerPoint, 5);
+    rocketNose.fillColor = '#FFFF';
+    project.activeLayer.addChild(rocketNose);
+
+    var noseWidth = rocketNose.bounds.width;
+
+    //how far out the nose of the rocket will stick
+    var noseMargin = 50;
+
+    //update mouse position
+    shipTool.onMouseDrag = function (event) {
+      mousePos = event.point;
+      step = event.delta;
+
+      rocketBody.position = event.point;
+      rocketNose.position = event.point;
+      rocketMiddle.position = event.point;
+
+      var xOffset = 0.5 - event.point.x / project.view.bounds.width;
+      var yOffset = 0.5 - event.point.y / project.view.bounds.height;
+
+      xNoseOffset = ((bodyWidth / 2) + noseMargin) * -xOffset;
+      yNoseOffset = ((bodyWidth / 2) + noseMargin) * -yOffset;
+
+      rocketNose.position.x += xNoseOffset;
+      rocketNose.position.y += yNoseOffset;
+
+      xMiddleOffset = ((bodyWidth / 2) + middleMargin) * -xOffset;
+      yMiddleOffset = ((bodyWidth / 2) + middleMargin) * -yOffset;
+
+      rocketMiddle.position.x += xMiddleOffset;
+      rocketMiddle.position.y += yMiddleOffset;
     };
 
-    drawTool.onMouseDrag = function (event) {
-      var step = event.delta;
-
-      if (sizingType === 'auto') {
-        distVector = globals.centerPoint - event.point;
-        distFromCenter = distVector.length - 50;
-        if (distFromCenter < minLineSize / drawThicknessScale) {
-          distFromCenter = minLineSize / drawThicknessScale;
-        }
-
-        step.angle += 90;
-        step.length = distFromCenter * drawThicknessScale;
+    function changeColor() {
+      if (currColor < colorList.length - 1) {
+        currColor += 1
+      } else {
+        currColor = 0;
       }
+    }
 
-      if (sizingType === 'manual') {
-        step.angle += 90;
-        step.length = brushSize;
+    function cleanupTrail() {
+      var horizSegments = horizTrail.segments;
+      var vertSegments = vertTrail.segments;
+
+      if (horizSegments.length > 200 || vertSegments.length > 200) {
+        changeColor();
+
+        if (horizTrailOld) horizTrailOld.remove();
+        horizTrailOld = horizTrail;
+        horizTrail = new Path();
+        horizTrail.fillColor = colorList[currColor];
+        project.activeLayer.appendBottom(horizTrail);
+
+        if (vertTrailOld) vertTrailOld.remove();
+        vertTrailOld = vertTrail;
+        vertTrail = new Path();
+        vertTrail.fillColor = colorList[currColor];
+        project.activeLayer.appendBottom(vertTrail);
       }
-
-      var top = event.middlePoint + step;
-      var bottom = event.middlePoint - step;
-
-      drawPath.add(top);
-      drawPath.insert(0, bottom);
-      drawPath.smooth();
-    };
-
-    drawTool.onMouseUp = function (event) {
-      drawPath.add(event.point);
-      drawPath.closed = true;
-      drawPath.smooth();
-    };
-
-    setTimeout(function () {
-      breakit();
-    }, 3000);
+    }
 
     function onFrame(event) {
-      globals.layers.forEach(function(layer) {
-        if (layer.animation) {
-          layer.animation(layer, layer.animSpeed, layer.animOptions);
-        }
-      });
+      horizTrail.scale(rocketSpeed, centerPoint);
+      vertTrail.scale(rocketSpeed, centerPoint);
+
+      if (horizTrailOld) horizTrailOld.scale(rocketSpeed, centerPoint);
+      if (vertTrailOld) vertTrailOld.scale(rocketSpeed, centerPoint);
+
+      step.angle = 90;
+      step.length = trailThickness + (Math.random() * 10);
+      var top = mousePos + step;
+      var bottom = mousePos - step;
+
+      horizTrail.add(top);
+      horizTrail.insert(0, bottom);
+      horizTrail.smooth();
+
+      step.angle = 0;
+      top = mousePos + step;
+      bottom = mousePos - step;
+
+      vertTrail.add(top);
+      vertTrail.insert(0, bottom);
+      vertTrail.smooth();
+
+      cleanupTrail();
     }
+
   </script>
 </head>
 <body>
